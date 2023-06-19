@@ -87,6 +87,7 @@ impl Component for Home {
             <div>
                 <h1>{ "主页" }</h1>
                 <img src={image_url} width="200" height="200"/>
+                <img src="./public/test.png" width="200" height="200"/>
                 <br/>
                 <textarea id="content" placeholder="输入内容"></textarea>
                 <div>
