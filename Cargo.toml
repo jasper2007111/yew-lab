@@ -40,7 +40,12 @@ features = [
     "IdbCursorWithValue",
     "IdbCursorDirection",
     "IdbKeyRange",
-    "Navigator"
+    "Navigator",
+    'Headers',
+  'Request',
+  'RequestInit',
+  'RequestMode',
+  'Response',
 ]
 
 [dependencies.chrono]
