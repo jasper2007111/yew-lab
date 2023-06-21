@@ -34,6 +34,10 @@ impl Component for Home {
                     name: String::from("Fetch测试"),
                     route: Route::FetchTest,
                 },
+                Menu {
+                    name: String::from("Counter测试"),
+                    route: Route::CounterTest,
+                },
             ],
         }
     }
