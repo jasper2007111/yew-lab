@@ -60,7 +60,7 @@ impl Component for Home {
             })
         }
         html! {
-            <div>
+            <div class="center-container">
                 <h1>{ "主页" }</h1>
                 {list}
             </div>
