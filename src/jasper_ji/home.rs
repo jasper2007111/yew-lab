@@ -1,11 +1,13 @@
-use web_sys::console;
+use gloo_console::log;
 use yew::prelude::*;
 
 use yew_router::prelude::*;
 
 use super::route::Route;
+use super::yew_button::YewButton;
 
 pub enum Msg {
+    None,
     SetEdit(usize),
 }
 
@@ -38,12 +40,20 @@ impl Component for Home {
                     name: String::from("Counter测试"),
                     route: Route::CounterTest,
                 },
+                Menu {
+                    name: String::from("组件测试"),
+                    route: Route::ComponentsTest
+                }
             ],
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
+            Msg::None=>{
+                log!("dddd");
+                false
+            },
             Msg::SetEdit(id) => {
                 let history1 = ctx.link().navigator().unwrap();
                 let menu = self.menus.get(id).unwrap();
@@ -54,9 +64,14 @@ impl Component for Home {
     }
     fn view(&self, ctx: &Context<Self>) -> Html {
         let mut list = vec![];
+        let on_clicked = ctx.link().callback(move|event:MouseEvent|{
+            Msg::None
+        });
         for (i, menu) in self.menus.clone().into_iter().enumerate() {
             list.push(html! {
-                <div onclick={ctx.link().callback(move|_|Msg::SetEdit(i))} >{menu.name}</div>
+                <div class={"row"} onclick={ctx.link().callback(move|_|Msg::SetEdit(i))} >
+                {menu.name} 
+                </div>
             })
         }
         html! {

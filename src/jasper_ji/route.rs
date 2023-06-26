@@ -12,5 +12,7 @@ pub enum Route {
     #[at("/fetchTest")]
     FetchTest,
     #[at("/counterTest")]
-    CounterTest
+    CounterTest,
+    #[at("/componentsTest")]
+    ComponentsTest
 }

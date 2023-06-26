@@ -128,7 +128,10 @@ impl Component for ImgTest {
             <div class="center-container">
                 <h1>{ "图片测试" }</h1>
                 <div>{"显示通过代码创建的图像"}</div>
-                <img src={image_url} width="200" height="200"/>
+                <img src={image_url.clone()} width="200" height="200" onload={ctx.link().callback(move |_: Event| {
+                    let _ = web_sys::Url::revoke_object_url(&image_url.clone());
+                    Msg::None
+                })}/>
                 <div>{"显示内置资源图片"}</div>
                 <img src="./public/test.png" width="200" height="200"/>
                 <br/>
