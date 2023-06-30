@@ -28,6 +28,8 @@ version = "0.3.9"
 # `get_bounding_client_rect` method.
 features = [
     "console",
+    "Element",
+    "DomTokenList",
     "HtmlElement",
     "HtmlInputElement",
     "MouseEvent",
@@ -46,10 +48,10 @@ features = [
     "IdbKeyRange",
     "Navigator",
     'Headers',
-  'Request',
-  'RequestInit',
-  'RequestMode',
-  'Response',
+    'Request',
+    'RequestInit',
+    'RequestMode',
+    'Response',
 ]
 
 [dependencies.chrono]

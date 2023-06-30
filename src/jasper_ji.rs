@@ -4,4 +4,5 @@ pub mod img_test;
 pub mod counter_test;
 pub mod route;
 pub mod yew_button;
+pub mod yew_rate;
 pub mod components_test;
