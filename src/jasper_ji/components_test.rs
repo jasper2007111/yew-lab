@@ -1,5 +1,6 @@
 use super::yew_button::YewButton;
 use super::yew_rate::YewRate;
+use super::yew_color_picker::YewColorPicker;
 use gloo_console::log;
 use yew::prelude::*;
 
@@ -35,11 +36,14 @@ impl Component for ComponentsTest {
         html! {
             <div style="margin-left: 100px;">
                 <h1>{ "组件测试" }</h1>
-                // <YewButton style="primary" title="按钮测试" on_clicked={on_clicked.clone()} />
-                // <br/>
+                <YewButton style="primary" title="按钮测试" on_clicked={on_clicked.clone()} />
+                <br/>
+                <br/>
                 <YewRate value={0.0} on_change={ctx.link().callback(|v| {
                     Msg::OnRateValueChanged(v)
                 })} show_text={true} allow_half={true}/>
+                <br/>
+                <YewColorPicker />
             </div>
         }
     }

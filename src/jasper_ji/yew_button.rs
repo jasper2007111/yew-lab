@@ -2,7 +2,9 @@
 use yew::prelude::*;
 
 pub enum Msg {}
-pub struct YewButton {}
+pub struct YewButton {
+    props:YewButtonProps
+}
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct YewButtonProps {
@@ -13,15 +15,24 @@ pub struct YewButtonProps {
     pub title: AttrValue,
     pub on_clicked: Callback<MouseEvent>,
     #[prop_or_default]
-    pub loading:bool
+    pub loading:bool,
+
+    #[prop_or_default]
+    pub plain:bool,
+    
+    // medium / small / mini
+    #[prop_or_default]
+    pub size:String
 }
 
 impl Component for YewButton {
     type Message = Msg;
     type Properties = YewButtonProps;
 
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self {}
+    fn create(ctx: &Context<Self>) -> Self {
+        Self {
+            props:ctx.props().clone()
+        }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
@@ -48,6 +59,15 @@ impl Component for YewButton {
         }
         if disabled {
             classes.push(String::from("is-disabled"));
+        }
+
+        if self.props.plain {
+            classes.push(String::from("is-plain"));
+        }
+
+        // TODO 需要对字符串进行检查
+        if !self.props.size.is_empty() {
+            classes.push(format!("el-button--{}", self.props.size));
         }
 
         html! {

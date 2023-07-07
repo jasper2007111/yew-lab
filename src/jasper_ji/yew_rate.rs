@@ -120,6 +120,8 @@ impl Component for YewRate {
                         };
                     } 
                 } else {
+
+                    
                     self.current_value = (index+1) as f64;
                 }
                 self.hover_index = index+1;
