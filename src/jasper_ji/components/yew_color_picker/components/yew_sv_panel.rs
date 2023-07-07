@@ -1,6 +1,8 @@
 use yew::prelude::*;
+use gloo_console::log;
 
-use super::yew_button::YewButton;
+use crate::jasper_ji::components::yew_button::YewButton;
+
 use web_sys::HtmlElement;
 use wasm_bindgen::JsCast;
 
@@ -14,6 +16,7 @@ pub enum Msg {
     OnMouseDown(MouseEvent),
     OnMouseMove(MouseEvent),
     OnMouseUp(MouseEvent),
+    OnFristRended,
 }
 pub struct YewSvPanel {
     is_dragging:bool,
@@ -30,6 +33,12 @@ pub struct YewSvPanelProps {
 
     #[prop_or_default]
     pub hue: f64,
+
+    #[prop_or_default]
+    pub saturation: f64,
+
+    #[prop_or_default]
+    pub value: f64,
 
     #[prop_or_default]
     pub on_change:Callback<(f64, f64)>
@@ -73,6 +82,25 @@ impl Component for YewSvPanel {
                 self.handle_drag(e);
                 true
             },
+            Msg::OnFristRended=>{
+                let document = web_sys::window().unwrap().document().unwrap();
+                let this_element = document
+                    .query_selector("#el-color-svpanel")
+                    .unwrap()
+                    .unwrap()
+                    .dyn_ref::<HtmlElement>()
+                    .unwrap()
+                    .clone();
+                let width = this_element.client_width();
+                let height = this_element.client_height();
+
+                let temp_saturation = self.props.saturation;
+                let temp_value = self.props.value;
+
+                self.cursor_left = temp_saturation * width as f64 / 100.0;
+                self.cursor_top = (100.0 - temp_value) * height as f64 / 100.0;
+                true
+            }
         }
     }
 
@@ -81,7 +109,7 @@ impl Component for YewSvPanel {
         let background = format!("hsl({}, 100%, 50%)", hue);
 
         html! {
-            <div class="el-color-svpanel" style={format!("background-color: {};", background)} 
+            <div id="el-color-svpanel" class="el-color-svpanel" style={format!("background-color: {};", background)} 
             onclick={ctx.link().callback(|e|{
                 Msg::OnClick(e)
             })} onmousedown={ctx.link().callback(|e|{
@@ -97,6 +125,12 @@ impl Component for YewSvPanel {
                     <div></div>
                 </div>
             </div>
+        }
+    }
+
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        if first_render {
+            ctx.link().send_message(Msg::OnFristRended);
         }
     }
 }
@@ -120,6 +154,9 @@ impl YewSvPanel {
 
         let saturation = left/rect.width()*100.0;
         let value = 100.0-top/rect.height()*100.0;
+
+
+
         self.props.on_change.emit((saturation, value));
     }
 }

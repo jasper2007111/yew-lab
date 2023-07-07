@@ -4,7 +4,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 use super::route::Route;
-use super::yew_button::YewButton;
+use super::components::yew_button::YewButton;
 
 pub enum Msg {
     None,

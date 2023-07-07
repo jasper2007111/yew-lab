@@ -1,6 +1,7 @@
-use super::yew_button::YewButton;
-use super::yew_rate::YewRate;
-use super::yew_color_picker::YewColorPicker;
+use super::components::yew_button::YewButton;
+use super::components::yew_rate::YewRate;
+use super::components::yew_color_picker::yew_color_picker::YewColorPicker;
+
 use gloo_console::log;
 use yew::prelude::*;
 

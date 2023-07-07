@@ -22,6 +22,9 @@ base64 = "0.21.2"
 
 image = "0.24.6"
 hsv = "0.1.1"
+color-rs = "0.8.0"
+colorsys = "0.6.7"
+color_space = "0.5.3"
 
 [dependencies.web-sys]
 version = "0.3.9"

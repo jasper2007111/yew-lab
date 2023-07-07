@@ -1,15 +1,18 @@
 
 use yew::prelude::*;
 
-use super::yew_picker_dropdown::YewPickerDropdown;
+use super::components::yew_picker_dropdown::YewPickerDropdown;
 
 pub enum Msg {
-    OnHandleTrigger(MouseEvent)
+    OnHandleTrigger(MouseEvent),
+    OnPickerDropdownValueChanged(String),
+    OnPickerDropdownConfirmValue,
+    OnPickerDropdownClearValue
 }
 pub struct YewColorPicker {
     show_picker:bool,
     show_panel_color: bool,
-    props:YewColorPickerProps
+    props:YewColorPickerProps,
 }
 
 #[derive(Clone, PartialEq, Properties)]
@@ -24,7 +27,7 @@ pub struct YewColorPickerProps {
     pub show_alpha: bool,
 
     #[prop_or_default]
-    pub on_clicked: Callback<MouseEvent>
+    pub on_change: Callback<String>
 }
 
 impl Component for YewColorPicker {
@@ -46,6 +49,20 @@ impl Component for YewColorPicker {
                     return false;
                 }
                 self.show_picker = !self.show_picker;
+                true
+            },
+            Msg::OnPickerDropdownValueChanged(v)=>{
+                self.props.value = v;
+                self.show_panel_color = true;
+                true
+            }
+            Msg::OnPickerDropdownConfirmValue=>{
+                self.show_picker =false;
+                true
+            },
+            Msg::OnPickerDropdownClearValue=>{
+                self.show_picker =false;
+                self.props.value = String::default();
                 true
             }
         }
@@ -77,7 +94,13 @@ impl Component for YewColorPicker {
                     }
                 </div>
                 if self.show_picker {
-                    <YewPickerDropdown/>
+                    <YewPickerDropdown value={self.props.value.clone()} on_change={ctx.link().callback(|v|{
+                        Msg::OnPickerDropdownValueChanged(v)
+                    })} on_confirm_value={ctx.link().callback(|_|{
+                        Msg::OnPickerDropdownConfirmValue
+                    })} on_clear_value={ctx.link().callback(|_|{
+                        Msg::OnPickerDropdownClearValue
+                    })} />
                 }
             </div>
         }
@@ -97,7 +120,10 @@ impl YewColorPicker {
     }
 
     pub fn get_displayed_color(&self) ->String {
-        "#fff".to_string()
+        if self.props.value.is_empty()  {
+            return "#fff".to_string()
+        }
+        self.props.value.clone()
     }
 }
 
