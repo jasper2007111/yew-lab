@@ -1,8 +1,5 @@
-use colorsys::Rgb;
 use gloo_console::log;
 use yew::prelude::*;
-
-use color_space::{Hsv, Rgb as CS_Rgb};
 
 use crate::jasper_ji::components::yew_button::YewButton;
 use crate::jasper_ji::utils::yew_color::YewColor;
@@ -58,24 +55,19 @@ impl Component for YewPickerDropdown {
 
     fn create(ctx: &Context<Self>) -> Self {
         if !ctx.props().value.is_empty() {
-            let rgb_result = Rgb::from_hex_str(ctx.props().value.as_str());
+            let rgb_result = csscolorparser::parse(ctx.props().value.as_str());
             if rgb_result.is_ok() {
-                let rgb = rgb_result.unwrap();
-                let cs_rgb = CS_Rgb::new(rgb.red(), rgb.green(), rgb.blue());
-                let hsv = Hsv::from(cs_rgb);
-                let s = hsv.s;
-                let h = hsv.h;
-                let v = hsv.v;
+                let color = rgb_result.unwrap();
+                let hsv = color.to_hsva();
+                let h = hsv.0;
+                let s: f64 = hsv.1;
+                let v = hsv.2;
 
                 let temp_saturation = js_sys::Math::floor(s * 100.0);
                 let temp_value = js_sys::Math::floor(v * 100.0);
 
                 return Self {
-                    color_hex: YewColor::rgb2hex(
-                        rgb.red() as u8,
-                        rgb.green() as u8,
-                        rgb.blue() as u8,
-                    ),
+                    color_hex: color.to_hex_string(),
                     hue: h,
                     saturation: temp_saturation,
                     value: temp_value,
