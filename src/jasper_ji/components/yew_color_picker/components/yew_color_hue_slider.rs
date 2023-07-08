@@ -14,6 +14,8 @@ pub struct YewColorHueSlider {
     thumb_top: f64,
     thumb_left: f64,
     show_panel_color: bool,
+    thumb_ref: NodeRef,
+    bar_ref: NodeRef,
     props: YewColorHueSliderProps,
 }
 
@@ -41,6 +43,8 @@ impl Component for YewColorHueSlider {
             thumb_top: 0.0,
             thumb_left: 0.0,
             show_panel_color: false,
+            thumb_ref: NodeRef::default(),
+            bar_ref: NodeRef::default(),
             props: ctx.props().clone(),
         }
     }
@@ -49,28 +53,22 @@ impl Component for YewColorHueSlider {
         match msg {
             Msg::None => false,
             Msg::OnFristRended => {
-                let document = web_sys::window().unwrap().document().unwrap();
-                let bar = document
-                    .query_selector("#el-color-hue-slider__bar")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_ref::<HtmlElement>()
-                    .unwrap()
-                    .clone();
+                let bar = self.bar_ref.cast::<HtmlElement>().unwrap();
+                let thumb = self.thumb_ref.cast::<HtmlElement>().unwrap();
 
-                let thumb = document
-                    .query_selector("#thumb")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_ref::<HtmlElement>()
-                    .unwrap()
-                    .clone();
-                
                 if self.props.vertical {
                     self.thumb_left = 0.0;
-                    self.thumb_top = js_sys::Math::round(self.props.hue*(bar.offset_height() as f64-thumb.offset_height() as f64/2.0)/360.0);
+                    self.thumb_top = js_sys::Math::round(
+                        self.props.hue
+                            * (bar.offset_height() as f64 - thumb.offset_height() as f64 / 2.0)
+                            / 360.0,
+                    );
                 } else {
-                    self.thumb_left = js_sys::Math::round(self.props.hue*(bar.offset_width() as f64-thumb.offset_width() as f64/2.0)/360.0);
+                    self.thumb_left = js_sys::Math::round(
+                        self.props.hue
+                            * (bar.offset_width() as f64 - thumb.offset_width() as f64 / 2.0)
+                            / 360.0,
+                    );
                     self.thumb_top = 0.0;
                 }
                 true
@@ -78,14 +76,7 @@ impl Component for YewColorHueSlider {
             Msg::OnBarClick(e) => {
                 let target: HtmlElement = e.target_unchecked_into();
                 let rect = target.get_bounding_client_rect();
-                let document = web_sys::window().unwrap().document().unwrap();
-                let thumb = document
-                    .query_selector("#thumb")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_ref::<HtmlElement>()
-                    .unwrap()
-                    .clone();
+                let thumb = self.thumb_ref.cast::<HtmlElement>().unwrap();
 
                 let hue;
 
@@ -139,10 +130,10 @@ impl Component for YewColorHueSlider {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div class="el-color-hue-slider is-vertical">
-                <div id="el-color-hue-slider__bar" class="el-color-hue-slider__bar" onclick={ctx.link().callback(|e|{
+                <div ref={&self.bar_ref} class="el-color-hue-slider__bar" onclick={ctx.link().callback(|e|{
                     Msg::OnBarClick(e)
                 })}></div>
-                <div id="thumb" class="el-color-hue-slider__thumb" style={format!("left: {}px; top: {}px", self.thumb_left, self.thumb_top)}>
+                <div ref={&self.thumb_ref} class="el-color-hue-slider__thumb" style={format!("left: {}px; top: {}px", self.thumb_left, self.thumb_top)}>
                 </div>
             </div>
         }

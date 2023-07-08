@@ -24,6 +24,9 @@ pub struct YewColorPickerProps {
     pub value: String,
 
     #[prop_or_default]
+    pub size: String,
+
+    #[prop_or_default]
     pub show_alpha: bool,
 
     #[prop_or_default]
@@ -73,6 +76,9 @@ impl Component for YewColorPicker {
         let mut classes = vec!["el-color-picker".to_string()];
         if self.get_color_disabled() {
             classes.push("is-disabled".to_string());
+        }
+        if !self.props.size.is_empty() {
+            classes.push(format!("el-color-picker--{}", self.props.size));
         }
         html! {
             <div class={classes!(classes)}>

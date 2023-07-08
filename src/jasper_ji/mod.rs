@@ -5,4 +5,4 @@ pub mod counter_test;
 pub mod route;
 pub mod components_test;
 pub mod components;
-pub mod yew_color;
+pub mod utils;

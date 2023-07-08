@@ -23,6 +23,7 @@ pub struct YewSvPanel {
     cursor_top: f64,
     cursor_left: f64,
     background: String,
+    svpanel_ref: NodeRef,
     props: YewSvPanelProps,
 }
 
@@ -54,6 +55,7 @@ impl Component for YewSvPanel {
             cursor_top: 0.0,
             cursor_left: 0.0,
             background: format!("hsl(0, 100%, 50%)"),
+            svpanel_ref: NodeRef::default(),
             props: ctx.props().clone(),
         }
     }
@@ -83,14 +85,8 @@ impl Component for YewSvPanel {
                 true
             },
             Msg::OnFristRended=>{
-                let document = web_sys::window().unwrap().document().unwrap();
-                let this_element = document
-                    .query_selector("#el-color-svpanel")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_ref::<HtmlElement>()
-                    .unwrap()
-                    .clone();
+                let this_element= self.svpanel_ref.cast::<HtmlElement>().unwrap();
+
                 let width = this_element.client_width();
                 let height = this_element.client_height();
 
@@ -109,14 +105,14 @@ impl Component for YewSvPanel {
         let background = format!("hsl({}, 100%, 50%)", hue);
 
         html! {
-            <div id="el-color-svpanel" class="el-color-svpanel" style={format!("background-color: {};", background)} 
+            <div ref={&self.svpanel_ref} class="el-color-svpanel" style={format!("background-color: {};", background)} 
             onclick={ctx.link().callback(|e|{
                 Msg::OnClick(e)
-            })} onmousedown={ctx.link().callback(|e|{
+            })} onmousedown={ctx.link().callback(|_|{
                 Msg::None
-            })} onmousemove={ctx.link().callback(|e|{
+            })} onmousemove={ctx.link().callback(|_|{
                 Msg::None
-            })} onmouseup={ctx.link().callback(|e|{
+            })} onmouseup={ctx.link().callback(|_|{
                 Msg::None
             })}>
                 <div class="el-color-svpanel__white"></div>
@@ -154,8 +150,6 @@ impl YewSvPanel {
 
         let saturation = left/rect.width()*100.0;
         let value = 100.0-top/rect.height()*100.0;
-
-
 
         self.props.on_change.emit((saturation, value));
     }

@@ -41,10 +41,6 @@ impl YewColor {
     pub fn rgb2hex(r: u8, g: u8, b: u8)->String {
         format!("#{:02X}{:02X}{:02X}", r, g, b)
     }
-
-    pub fn bound01(value: f64, max: f64)->f64 {
-        0.0
-    }
  }
 
  #[test]
