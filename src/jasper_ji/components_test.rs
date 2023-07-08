@@ -7,7 +7,8 @@ use yew::prelude::*;
 
 pub enum Msg {
     BtnClick,
-    OnRateValueChanged(f64)
+    OnRateValueChanged(f64),
+    OnPickerValueChanged(String)
 }
 
 pub struct ComponentsTest {}
@@ -29,6 +30,10 @@ impl Component for ComponentsTest {
             Msg::OnRateValueChanged(v) =>{
                 log!("v: ", v);
                 false
+            },
+            Msg::OnPickerValueChanged(v) =>{
+                log!("OnPickerValueChanged: ", v);
+                false
             }
         }
     }
@@ -44,7 +49,10 @@ impl Component for ComponentsTest {
                     Msg::OnRateValueChanged(v)
                 })} show_text={true} allow_half={true}/>
                 <br/>
-                <YewColorPicker />
+                <YewColorPicker value={"rgba(19, 206, 102, 0.5)"} show_alpha={true} on_change={ctx.link().callback(|v|{
+                    Msg::OnPickerValueChanged(v)
+                })
+                }/>
             </div>
         }
     }

@@ -6,12 +6,14 @@ use crate::jasper_ji::utils::yew_color::YewColor;
 
 use super::yew_color_hue_slider::YewColorHueSlider;
 use super::yew_sv_panel::YewSvPanel;
+use super::yew_color_alpha_slider::YewColorAlphaSlider;
 
 pub enum Msg {
     None,
     OnHandleTrigger(MouseEvent),
     OnHueChanged(f64),
     OnSvChanded((f64, f64)),
+    OnAlphaChanged(f64),
     OnConfirmValue,
     OnClearValue,
 }
@@ -19,10 +21,11 @@ pub struct YewPickerDropdown {
     hue: f64,
     saturation: f64,
     value: f64,
+    alpha: f64,
     show_panel_color: bool,
     props: YewPickerDropdownProps,
-
     color_hex: String,
+    rgba:(u8, u8, u8, u8)
 }
 
 #[derive(Clone, PartialEq, Properties)]
@@ -46,7 +49,7 @@ pub struct YewPickerDropdownProps {
     pub on_clear_value: Callback<String>,
 
     #[prop_or_default]
-    pub custom_input: String,
+    pub custom_input: String
 }
 
 impl Component for YewPickerDropdown {
@@ -66,7 +69,10 @@ impl Component for YewPickerDropdown {
                 let temp_saturation = js_sys::Math::floor(s * 100.0);
                 let temp_value = js_sys::Math::floor(v * 100.0);
 
+                let rgba = color.to_rgba8();
                 return Self {
+                    alpha: rgba[3] as f64 /255.0*100.0,
+                    rgba: (rgba[0], rgba[1], rgba[2], rgba[3]),
                     color_hex: color.to_hex_string(),
                     hue: h,
                     saturation: temp_saturation,
@@ -77,6 +83,8 @@ impl Component for YewPickerDropdown {
             }
         }
         Self {
+            alpha: 100.0,
+            rgba:(0,0,0,255),
             color_hex: String::default(),
             hue: 0.0,
             saturation: 0.0,
@@ -96,7 +104,6 @@ impl Component for YewPickerDropdown {
                 true
             }
             Msg::OnSvChanded((s, v)) => {
-                // log!(format!("h: {}, s: {}, v:{}", self.hue, s, v));
                 self.saturation = s;
                 self.value = v;
                 self.update_color();
@@ -109,6 +116,11 @@ impl Component for YewPickerDropdown {
             Msg::OnConfirmValue => {
                 self.props.on_confirm_value.emit("confirm".to_string());
                 false
+            },
+            Msg::OnAlphaChanged(v) =>{
+                self.alpha = v;
+                self.update_color();
+                true
             }
         }
     }
@@ -116,7 +128,12 @@ impl Component for YewPickerDropdown {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let custom_input;
         if !self.color_hex.is_empty() {
-            custom_input = self.color_hex.clone();
+            let rgb = self.rgba;
+            if self.props.show_alpha {
+                custom_input = format!("rgba({}, {}, {}, {:.2})", rgb.0, rgb.1, rgb.2, rgb.3 as f64/255.0);
+            } else {
+                custom_input = self.color_hex.clone();
+            }
         } else {
             custom_input = self.props.custom_input.clone();
         }
@@ -127,7 +144,6 @@ impl Component for YewPickerDropdown {
         html! {
             <div class="el-color-dropdown el-color-picker__panel">
                 <div class="el-color-dropdown__main-wrapper">
-                    // <hue-slider ref="hue" :color="color" vertical style="float: right;"></hue-slider>
                     <div style="float: right;"><YewColorHueSlider hue={self.hue} on_change={ctx.link().callback(|v|{
                         Msg::OnHueChanged(v)
                     })}/></div>
@@ -135,18 +151,15 @@ impl Component for YewPickerDropdown {
                         Msg::OnSvChanded(e)
                     })}/>
                 </div>
-                // <alpha-slider v-if="showAlpha" ref="alpha" :color="color"></alpha-slider>
+                if self.props.show_alpha {
+                    <YewColorAlphaSlider value={self.rgba} on_change={ctx.link().callback(|v|{
+                        Msg::OnAlphaChanged(v)
+                    })}/>
+                }
                 // <predefine v-if="predefine" :color="color" :colors="predefine"></predefine>
                 <div class="el-color-dropdown__btns">
                     <span class="el-color-dropdown__value">
                         // TODO 暂未实现input组件，使用文本代替
-                        // <el-input
-                        // v-model="customInput"
-                        // @keyup.native.enter="handleConfirm"
-                        // @blur="handleConfirm"
-                        // :validate-event="false"
-                        // size="mini">
-                        // </el-input>
                         {custom_input}
                     </span>
                     <YewButton style="text" size={"mini"} title={"清空"} on_clicked={ctx.link().callback(|_|{
@@ -180,7 +193,15 @@ impl YewPickerDropdown {
     pub fn update_color(&mut self) {
         let rgb = YewColor::hsv2rgb(self.hue, self.saturation, self.value);
         // log!(format!("r: {}, g: {}, b:{}", rgb.0, rgb.1, rgb.2));
-        self.props.custom_input = YewColor::rgb2hex(rgb.0, rgb.1, rgb.2);
+
+        if self.props.show_alpha {
+            self.rgba = (rgb.0, rgb.1, rgb.2, 255);
+            let a = self.alpha/100.0;
+            self.props.custom_input = format!("rgba({}, {}, {}, {:.2})", rgb.0, rgb.1, rgb.2, a);
+        } else {
+            self.rgba = (rgb.0, rgb.1, rgb.2, 255);
+            self.props.custom_input = YewColor::rgb2hex(rgb.0, rgb.1, rgb.2);
+        }
 
         self.props.on_change.emit(self.props.custom_input.clone());
         self.color_hex = String::default();

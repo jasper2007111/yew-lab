@@ -55,8 +55,9 @@ impl Component for YewColorPicker {
                 true
             },
             Msg::OnPickerDropdownValueChanged(v)=>{
-                self.props.value = v;
+                self.props.value = v.clone();
                 self.show_panel_color = true;
+                self.props.on_change.emit(v.clone());
                 true
             }
             Msg::OnPickerDropdownConfirmValue=>{
@@ -106,7 +107,7 @@ impl Component for YewColorPicker {
                         Msg::OnPickerDropdownConfirmValue
                     })} on_clear_value={ctx.link().callback(|_|{
                         Msg::OnPickerDropdownClearValue
-                    })} />
+                    })} show_alpha={self.props.show_alpha}/>
                 }
             </div>
         }
