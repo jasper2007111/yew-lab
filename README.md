@@ -13,6 +13,7 @@ Rust前端框架[Yew](https://github.com/yewstack/yew/tree/master)实验室，�
 1. Button 按钮，基本功能已经完成
 2. Rate 评分，已经完成
 3. ColorPicker 颜色选择器，核心功能已经完成，暂不支持自定义输入颜色，另外也不支持滑动，只支持点击选择功能。
+4. Input 输入框，进行中。
 
 
 运行
