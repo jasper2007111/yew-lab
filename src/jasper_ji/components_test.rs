@@ -1,6 +1,7 @@
 use super::components::yew_button::YewButton;
 use super::components::yew_rate::YewRate;
 use super::components::yew_color_picker::yew_color_picker::YewColorPicker;
+use super::components::yew_input::YewInput;
 
 use gloo_console::log;
 use yew::prelude::*;
@@ -40,7 +41,7 @@ impl Component for ComponentsTest {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let on_clicked = ctx.link().callback(move |_e: MouseEvent| Msg::BtnClick);
         html! {
-            <div style="margin-left: 100px;">
+            <div>
                 <h1>{ "组件测试" }</h1>
                 <YewButton style="primary" title="按钮测试" on_clicked={on_clicked.clone()} />
                 <br/>
@@ -53,6 +54,10 @@ impl Component for ComponentsTest {
                     Msg::OnPickerValueChanged(v)
                 })
                 }/>
+                <br/>
+                <br/>
+
+                <YewInput><i solt="prepend" class="el-input__icon el-icon-date"></i></YewInput>
             </div>
         }
     }
