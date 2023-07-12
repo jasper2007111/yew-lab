@@ -1,8 +1,8 @@
+use gloo_console::log;
+use std::collections::HashMap;
+use std::fmt::Debug;
 use yew::prelude::*;
 use yew::virtual_dom::{VNode, VTag};
-use gloo_console::log;
-use std::fmt::Debug;
-use std::collections::HashMap;
 
 pub enum YewInputMsg {}
 
@@ -10,7 +10,7 @@ pub struct YewInput {
     input_ref: NodeRef,
     password_visible: bool,
     // 缓存查找的
-    solt_map:HashMap<String, bool>,
+    solt_map: HashMap<String, bool>,
     props: YewInputProps,
 }
 
@@ -35,11 +35,11 @@ pub struct YewInputProps {
     pub show_password: bool,
 
     #[prop_or_default]
-    show_clear:bool,
+    show_clear: bool,
 
     // 前缀
     #[prop_or_default]
-    pub prefix_icon:String,
+    pub prefix_icon: String,
 
     // 后缀
     #[prop_or_default]
@@ -55,7 +55,7 @@ impl Component for YewInput {
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {
-            solt_map:HashMap::default(),
+            solt_map: HashMap::default(),
             input_ref: NodeRef::default(),
             password_visible: false,
             props: ctx.props().clone(),
@@ -97,11 +97,11 @@ impl YewInput {
 
         let has_prepend = self.has_solt("prepend".to_string());
         let has_append = self.has_solt("append".to_string());
-        if has_prepend || has_append  {
+        if has_prepend || has_append {
             classes.push("el-input-group".to_string());
             if has_append {
                 classes.push("el-input-group--append".to_string());
-            } 
+            }
             if has_prepend {
                 classes.push("el-input-group--prepend".to_string());
             }
@@ -118,7 +118,7 @@ impl YewInput {
         if has_suffix || !self.props.suffix_icon.is_empty() {
             classes.push("el-input--suffix".to_string());
         }
-        
+
         classes
     }
 
@@ -138,7 +138,7 @@ impl YewInput {
         let has_suffix = self.has_solt("suffix".to_string());
         if has_suffix {
             return true;
-        } 
+        }
 
         if !self.props.suffix_icon.is_empty() {
             return true;
@@ -174,14 +174,14 @@ impl YewInput {
         return false;
     }
 
-    pub fn get_solt(&self, solt_name: String)->Option<VNode> {
-        for i in  self.props.children.clone().into_iter() {
+    pub fn get_solt(&self, solt_name: String) -> Option<VNode> {
+        for i in self.props.children.clone().into_iter() {
             match i {
-                VNode::VTag(ref vtag)=>{
+                VNode::VTag(ref vtag) => {
                     match vtag.attributes {
-                        yew::virtual_dom::Attributes::Static(vev)=>{
+                        yew::virtual_dom::Attributes::Static(vev) => {
                             for g in vev {
-                                if g.0=="solt" {
+                                if g.0 == "solt" {
                                     // log!(format!("{:?}", g.1));
                                     if g.1 == solt_name {
                                         return Some(i);
@@ -189,16 +189,16 @@ impl YewInput {
                                 }
                             }
                         }
-                        _=>{}
+                        _ => {}
                     }
-                },
-                _=>{}
+                }
+                _ => {}
             }
         }
         None
     }
 
-    pub fn has_solt(&self, name:String)->bool {
+    pub fn has_solt(&self, name: String) -> bool {
         // TODO 此处原本打算缓存一下，但发现这个最终会在view的方法里调用，而那个是不可修改的self。
         // 这个也让我知道了，Rust的一些使用上的问题，安全的代价可能比想象的高。
         // let clone_name = name.clone();
@@ -207,11 +207,11 @@ impl YewInput {
         //     return *c.unwrap();
         // }
         match self.get_solt(name) {
-            Some(_)=>{
+            Some(_) => {
                 // self.solt_map.insert(clone_name.clone(), true);
                 return true;
-            },
-            None=> {
+            }
+            None => {
                 // self.solt_map.insert(clone_name.clone(), false);
                 return false;
             }
@@ -240,15 +240,15 @@ impl YewInput {
                     <div class="el-input-group__prepend">
                         {self.get_solt("prepend".to_string()).unwrap().clone()}
                     </div>
-                } 
+                }
                 <input
-                    tabindex={self.props.tabindex.clone()} 
-                    disabled={self.is_input_disabled()} 
-                    type={input_type} 
-                    class="el-input__inner" 
-                    readonly = {self.props.readonly} 
-                    ref = {&self.input_ref} 
-                    autocomplete="off" 
+                    tabindex={self.props.tabindex.clone()}
+                    disabled={self.is_input_disabled()}
+                    type={input_type}
+                    class="el-input__inner"
+                    readonly = {self.props.readonly}
+                    ref = {&self.input_ref}
+                    autocomplete="off"
                     placeholder="请选择日期"
                 />
                 // 前置内容
