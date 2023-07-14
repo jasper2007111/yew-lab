@@ -7,17 +7,24 @@ use yew::virtual_dom::{VNode, VTag};
 use std::cell::RefCell;
 
 pub enum YewInputMsg {
+    None,
     OnInput(InputEvent),
     OnFocus(FocusEvent),
     OnBlur(Event),
     OnChange(Event),
+    OnClear(),
+    OnMouseEnter(),
+    OnMouseLeave(),
+    OnHandlePasswordVisible(),
 }
 
 pub struct YewInput {
     textarea_ref: NodeRef,
     input_ref: NodeRef,
     password_visible: bool,
+    hovering: bool,
     focused: bool,
+    need_focus: bool,
     // 缓存查找的
     solt_map: RefCell<HashMap<String, bool>>,
     props: YewInputProps,
@@ -45,9 +52,6 @@ pub struct YewInputProps {
 
     #[prop_or_default]
     pub show_password: bool,
-
-    #[prop_or_default]
-    show_clear: bool,
 
     #[prop_or_default]
     pub show_word_limit: bool,
@@ -88,8 +92,14 @@ pub struct YewInputProps {
     #[prop_or(None)]
     pub max_length: Option<i32>,
 
+    #[prop_or(None)]
+    pub min_length: Option<i32>,
+
     #[prop_or_default]
-    pub dd:i32
+    pub clearable: bool,
+
+    #[prop_or(None)]
+    pub rows: Option<u32>
 }
 
 impl Component for YewInput {
@@ -98,6 +108,8 @@ impl Component for YewInput {
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {
+            need_focus: false,
+            hovering: false,
             solt_map: RefCell::new(HashMap::default()),
             textarea_ref: NodeRef::default(),
             input_ref: NodeRef::default(),
@@ -109,6 +121,7 @@ impl Component for YewInput {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
+            YewInputMsg::None => false,
             YewInputMsg::OnInput(e) => {
                 let target: HtmlInputElement = e.target_unchecked_into();
                 self.props.value = target.value().clone();
@@ -135,13 +148,51 @@ impl Component for YewInput {
                 self.props.on_change.emit(target.value().clone());
                 true
             }
+            YewInputMsg::OnClear() => {
+                self.props.on_input.emit("".to_string());
+                self.props.on_change.emit("".to_string());
+                self.props.value = "".to_string();
+
+                if self.props.input_type == "textarea" {
+                    let textarea = self.textarea_ref.cast::<HtmlTextAreaElement>().unwrap();
+                    textarea.set_value("");
+                } else if self.props.input_type == "text" {
+                    let input = self.input_ref.cast::<HtmlInputElement>().unwrap();
+                    input.set_value("");
+                }
+                false
+            }
+            YewInputMsg::OnMouseEnter() => {
+                // log!("OnMouseEnter");
+                self.hovering = true;
+                false
+            }
+            YewInputMsg::OnMouseLeave() => {
+                // log!("OnMouseLeave");
+                self.hovering = false;
+                false
+            }
+            YewInputMsg::OnHandlePasswordVisible() => {
+                self.password_visible = !self.password_visible;
+                // 此处标记渲染结束后执行
+                self.need_focus = true;
+                true
+            }
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let classes = self.get_root_div_classes();
         html! {
-            <div class={classes!(classes.clone())}>
+            <div
+                class={classes!(classes.clone())}
+                onmouseenter={ctx.link().callback(|_|{
+                    YewInputMsg::OnMouseEnter()
+                })}
+                onmouseleave={ctx.link().callback(|_|{
+                    YewInputMsg::OnMouseLeave()
+                })}
+            >
                 if self.props.input_type == "textarea" {
                     <textarea
                         tabindex = {self.props.tabindex.clone()}
@@ -167,7 +218,6 @@ impl Component for YewInput {
                         })}
                         placeholder = {self.props.placeholder.clone()}
                         aria-label = {self.props.label.clone()}
-                        maxlength={format!("{}", self.props.max_length.unwrap())}
                     >
                     </textarea>
                     if self.is_word_limit_visible() {
@@ -184,20 +234,64 @@ impl Component for YewInput {
         if first_render {
             if self.props.input_type == "textarea" {
                 let textarea = self.textarea_ref.cast::<HtmlTextAreaElement>().unwrap();
-                // if let Some(maxlength) = self.props.max_length {
-                //     textarea.set_max_length(maxlength);
-                // }
+                if let Some(maxlength) = self.props.max_length {
+                    textarea.set_max_length(maxlength);
+                }
+
+                if let Some(minlenght) = self.props.min_length {
+                    textarea.set_min_length(minlenght);
+                }
+
+                if !self.props.value.is_empty() {
+                    textarea.set_value(&self.props.value);
+                }
+
+                if let Some(value) = self.props.rows {
+                    textarea.set_rows(value);
+                }
+
             } else if self.props.input_type == "text" {
-                let input = self.textarea_ref.cast::<HtmlInputElement>().unwrap();
+                let input = self.input_ref.cast::<HtmlInputElement>().unwrap();
                 if let Some(maxlength) = self.props.max_length {
                     input.set_max_length(maxlength);
                 }
+
+                if let Some(minlenght) = self.props.min_length {
+                    input.set_min_length(minlenght);
+                }
+
+                if !self.props.value.is_empty() {
+                    input.set_value(&self.props.value);
+                }
+            }
+        }
+        if self.need_focus {
+            self.need_focus = false;
+            if self.props.input_type == "textarea" {
+                let textarea = self.textarea_ref.cast::<HtmlTextAreaElement>().unwrap();
+                let _ = textarea.focus();
+            } else if self.props.input_type == "text" {
+                let input = self.input_ref.cast::<HtmlInputElement>().unwrap();
+                let _ = input.focus();
             }
         }
     }
 }
 
 impl YewInput {
+    pub fn show_clear(&self) -> bool {
+        // TODO 未实现全
+        // return this.clearable &&
+        //   !this.inputDisabled &&
+        //   !this.readonly &&
+        //   this.nativeInputValue &&
+        //   (this.focused || this.hovering);
+        let flag = self.props.clearable
+            && !self.is_input_disabled()
+            && !self.props.readonly
+            && (self.hovering || self.focused);
+        return flag;
+    }
     pub fn get_text_length(&self) -> usize {
         let len = self.props.value.len();
         return len;
@@ -237,10 +331,12 @@ impl YewInput {
             classes.push("el-input--prefix".to_string());
         }
 
-        // TODO 以下未实现全
-        // 'el-input--suffix': $slots.suffix || suffixIcon || clearable || showPassword
         let has_suffix = self.has_solt("suffix".to_string());
-        if has_suffix || !self.props.suffix_icon.is_empty() {
+        if has_suffix
+            || !self.props.suffix_icon.is_empty()
+            || self.props.clearable
+            || self.props.show_password
+        {
             classes.push("el-input--suffix".to_string());
         }
 
@@ -257,23 +353,15 @@ impl YewInput {
     }
 
     pub fn get_suffix_visible(&self) -> bool {
-        // this.isWordLimitVisible ||
         // (this.validateState && this.needStatusIcon);
 
         let has_suffix = self.has_solt("suffix".to_string());
-        if has_suffix {
-            return true;
-        }
-
-        if !self.props.suffix_icon.is_empty() {
-            return true;
-        }
-
-        if self.props.show_clear {
-            return true;
-        }
-
-        if self.props.show_password {
+        if has_suffix
+            || !self.props.suffix_icon.is_empty()
+            || self.show_clear()
+            || self.props.show_password
+            || self.is_word_limit_visible()
+        {
             return true;
         }
 
@@ -286,16 +374,20 @@ impl YewInput {
         // !this.readonly &&
         // (!!this.nativeInputValue || this.focused);
 
-        return self.props.show_password;
+        return self.props.show_password
+            && !self.is_input_disabled()
+            && !self.props.readonly
+            && self.focused;
     }
 
     pub fn is_word_limit_visible(&self) -> bool {
-        return self.props.show_word_limit
+        let flag = self.props.show_word_limit
             && self.props.max_length.is_some()
             && (self.props.input_type == "text" || self.props.input_type == "textarea")
             && !self.is_input_disabled()
             && !self.props.readonly
             && !self.props.show_password;
+        flag
     }
 
     pub fn get_solt(&self, solt_name: String) -> Option<VNode> {
@@ -406,22 +498,34 @@ impl YewInput {
                 if self.get_suffix_visible() {
                     <span class="el-input__suffix">
                         <span class="el-input__suffix-inner">
-                            if self.props.show_clear || self.show_pwd_visible() || self.is_word_limit_visible() {
-                                // TODO 暂未实现
-                                // <i v-if="showClear"
-                                // class="el-input__icon el-icon-circle-close el-input__clear"
-                                // @mousedown.prevent
-                                // @click="clear"
-                                // ></i>
-                                // <i v-if="showPwdVisible"
-                                // class="el-input__icon el-icon-view el-input__clear"
-                                // @click="handlePasswordVisible"
-                                // ></i>
-                                // <span v-if="isWordLimitVisible" class="el-input__count">
-                                // <span class="el-input__count-inner">
-                                //     {{ textLength }}/{{ upperLimit }}
-                                // </span>
-                                // </span>
+                            if self.show_clear() || self.show_pwd_visible() || self.is_word_limit_visible() {
+                                if self.show_clear() {
+                                    <i
+                                        class="el-input__icon el-icon-circle-close el-input__clear"
+                                        onclick={ctx.link().callback(|_|{
+                                            YewInputMsg::OnClear()
+                                        })}
+                                        onmousedown={ctx.link().callback(|e: MouseEvent| {
+                                            e.stop_propagation();
+                                            YewInputMsg::None
+                                        })}
+                                    />
+                                }
+                                if self.show_pwd_visible() {
+                                    <i
+                                        class="el-input__icon el-icon-view el-input__clear"
+                                        onclick={ctx.link().callback(|_|{
+                                            YewInputMsg::OnHandlePasswordVisible()
+                                        })}
+                                    />
+                                }
+                                if self.is_word_limit_visible() {
+                                    <span class="el-input__count">
+                                        <span class="el-input__count-inner">
+                                            {format!("{}/{}", self.get_text_length(), self.props.max_length.unwrap())}
+                                        </span>
+                                    </span>
+                                }
                             } else {
                                 if has_suffix {
                                     {self.get_solt("suffix".to_string()).unwrap().clone()}
