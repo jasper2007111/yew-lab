@@ -57,7 +57,7 @@ impl Component for ComponentsTest {
                 <br/>
                 <br/>
 
-                <YewInput><i solt="prepend" class="el-input__icon el-icon-date"></i></YewInput>
+                <YewInput show_word_limit={true} input_type="textarea" placeholder="请输入"><i solt="prefix" class="el-input__icon el-icon-date"></i></YewInput>
             </div>
         }
     }

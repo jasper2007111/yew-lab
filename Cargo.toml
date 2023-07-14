@@ -35,6 +35,8 @@ features = [
     "DomRect",
     "HtmlElement",
     "HtmlInputElement",
+    "HtmlTextAreaElement",
+    "CssStyleDeclaration",
     "MouseEvent",
     "DomRect",
     "IdbFactory",

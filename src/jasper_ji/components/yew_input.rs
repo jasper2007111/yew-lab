@@ -1,16 +1,25 @@
 use gloo_console::log;
 use std::collections::HashMap;
-use std::fmt::Debug;
+use web_sys::{Element, HtmlElement, HtmlInputElement, HtmlTextAreaElement};
 use yew::prelude::*;
 use yew::virtual_dom::{VNode, VTag};
 
-pub enum YewInputMsg {}
+use std::cell::RefCell;
+
+pub enum YewInputMsg {
+    OnInput(InputEvent),
+    OnFocus(FocusEvent),
+    OnBlur(Event),
+    OnChange(Event),
+}
 
 pub struct YewInput {
+    textarea_ref: NodeRef,
     input_ref: NodeRef,
     password_visible: bool,
+    focused: bool,
     // 缓存查找的
-    solt_map: HashMap<String, bool>,
+    solt_map: RefCell<HashMap<String, bool>>,
     props: YewInputProps,
 }
 
@@ -18,6 +27,9 @@ pub struct YewInput {
 pub struct YewInputProps {
     #[prop_or_default]
     pub disabled: bool,
+
+    #[prop_or_default]
+    pub value: String,
 
     #[prop_or("text".to_string())]
     pub input_type: String,
@@ -37,6 +49,9 @@ pub struct YewInputProps {
     #[prop_or_default]
     show_clear: bool,
 
+    #[prop_or_default]
+    pub show_word_limit: bool,
+
     // 前缀
     #[prop_or_default]
     pub prefix_icon: String,
@@ -47,6 +62,34 @@ pub struct YewInputProps {
 
     #[prop_or_default]
     pub children: Children,
+
+    #[prop_or_default]
+    pub placeholder: String,
+
+    #[prop_or_default]
+    pub on_input: Callback<String>,
+
+    #[prop_or_default]
+    pub on_focus: Callback<FocusEvent>,
+
+    #[prop_or_default]
+    pub on_blur: Callback<Event>,
+
+    #[prop_or_default]
+    pub on_change: Callback<String>,
+
+    // 输入框关联的label文字
+    #[prop_or_default]
+    pub label: String,
+
+    #[prop_or("off".to_string())]
+    pub autocomplete: String,
+
+    #[prop_or(None)]
+    pub max_length: Option<i32>,
+
+    #[prop_or_default]
+    pub dd:i32
 }
 
 impl Component for YewInput {
@@ -55,10 +98,43 @@ impl Component for YewInput {
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {
-            solt_map: HashMap::default(),
+            solt_map: RefCell::new(HashMap::default()),
+            textarea_ref: NodeRef::default(),
             input_ref: NodeRef::default(),
             password_visible: false,
+            focused: false,
             props: ctx.props().clone(),
+        }
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            YewInputMsg::OnInput(e) => {
+                let target: HtmlInputElement = e.target_unchecked_into();
+                self.props.value = target.value().clone();
+                self.props.on_input.emit(target.value().clone());
+                true
+            }
+            YewInputMsg::OnFocus(e) => {
+                self.focused = true;
+                self.props.on_focus.emit(e);
+                false
+            }
+            YewInputMsg::OnBlur(e) => {
+                self.focused = false;
+                self.props.on_blur.emit(e);
+                // TODO 原版的这个没用实现
+                // if (this.validateEvent) {
+                //     this.dispatch('ElFormItem', 'el.form.blur', [this.value]);
+                // }
+                false
+            }
+            YewInputMsg::OnChange(e) => {
+                let target: HtmlInputElement = e.target_unchecked_into();
+                self.props.value = target.value().clone();
+                self.props.on_change.emit(target.value().clone());
+                true
+            }
         }
     }
 
@@ -67,16 +143,65 @@ impl Component for YewInput {
         html! {
             <div class={classes!(classes.clone())}>
                 if self.props.input_type == "textarea" {
-                    // TODO 暂未实现
+                    <textarea
+                        tabindex = {self.props.tabindex.clone()}
+                        class = "el-textarea__inner"
+                        oninput = {ctx.link().callback(|e| {
+                            YewInputMsg::OnInput(e)
+                        })}
+                        ref = {&self.textarea_ref}
+                        disabled = {self.is_input_disabled()}
+                        readonly = {self.props.readonly}
+                        autocomplete = {self.props.autocomplete.clone()}
+                        oninput = {ctx.link().callback(|e|{
+                            YewInputMsg::OnInput(e)
+                        })}
+                        onfocus = {ctx.link().callback(|e|{
+                            YewInputMsg::OnFocus(e)
+                        })}
+                        onblur = {ctx.link().callback(|e|{
+                            YewInputMsg::OnFocus(e)
+                        })}
+                        onchange = {ctx.link().callback(|e|{
+                            YewInputMsg::OnChange(e)
+                        })}
+                        placeholder = {self.props.placeholder.clone()}
+                        aria-label = {self.props.label.clone()}
+                        maxlength={format!("{}", self.props.max_length.unwrap())}
+                    >
+                    </textarea>
+                    if self.is_word_limit_visible() {
+                        <span class="el-input__count">{format!("{}/{}", self.get_text_length(), self.props.max_length.unwrap())}</span>
+                    }
                 } else {
-                    {self.get_input_node()}
+                    {self.get_input_node(ctx)}
                 }
             </div>
+        }
+    }
+
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        if first_render {
+            if self.props.input_type == "textarea" {
+                let textarea = self.textarea_ref.cast::<HtmlTextAreaElement>().unwrap();
+                // if let Some(maxlength) = self.props.max_length {
+                //     textarea.set_max_length(maxlength);
+                // }
+            } else if self.props.input_type == "text" {
+                let input = self.textarea_ref.cast::<HtmlInputElement>().unwrap();
+                if let Some(maxlength) = self.props.max_length {
+                    input.set_max_length(maxlength);
+                }
+            }
         }
     }
 }
 
 impl YewInput {
+    pub fn get_text_length(&self) -> usize {
+        let len = self.props.value.len();
+        return len;
+    }
     pub fn get_root_div_classes(&self) -> Vec<String> {
         let mut classes: Vec<_> = vec![];
         if self.props.input_type == "textarea" {
@@ -165,13 +290,12 @@ impl YewInput {
     }
 
     pub fn is_word_limit_visible(&self) -> bool {
-        // return this.showWordLimit &&
-        //   this.$attrs.maxlength &&
-        //   (this.type === 'text' || this.type === 'textarea') &&
-        //   !this.inputDisabled &&
-        //   !this.readonly &&
-        //   !this.showPassword;
-        return false;
+        return self.props.show_word_limit
+            && self.props.max_length.is_some()
+            && (self.props.input_type == "text" || self.props.input_type == "textarea")
+            && !self.is_input_disabled()
+            && !self.props.readonly
+            && !self.props.show_password;
     }
 
     pub fn get_solt(&self, solt_name: String) -> Option<VNode> {
@@ -201,24 +325,26 @@ impl YewInput {
     pub fn has_solt(&self, name: String) -> bool {
         // TODO 此处原本打算缓存一下，但发现这个最终会在view的方法里调用，而那个是不可修改的self。
         // 这个也让我知道了，Rust的一些使用上的问题，安全的代价可能比想象的高。
-        // let clone_name = name.clone();
-        // let c = self.solt_map.get(&clone_name.clone());
-        // if c.is_some() {
-        //     return *c.unwrap();
-        // }
+        // 不过此处问题已经通过RefCell的方式解决
+        let clone_name = name.clone();
+        let mut ref_cell = self.solt_map.borrow_mut();
+        let c = ref_cell.get(&clone_name.clone());
+        if c.is_some() {
+            return *c.unwrap();
+        }
         match self.get_solt(name) {
             Some(_) => {
-                // self.solt_map.insert(clone_name.clone(), true);
+                ref_cell.insert(clone_name.clone(), true);
                 return true;
             }
             None => {
-                // self.solt_map.insert(clone_name.clone(), false);
+                ref_cell.insert(clone_name.clone(), false);
                 return false;
             }
         }
     }
 
-    pub fn get_input_node(&self) -> VNode {
+    pub fn get_input_node(&self, ctx: &Context<YewInput>) -> VNode {
         let input_type;
         if self.props.show_password {
             if self.password_visible {
@@ -244,12 +370,25 @@ impl YewInput {
                 <input
                     tabindex={self.props.tabindex.clone()}
                     disabled={self.is_input_disabled()}
-                    type={input_type}
-                    class="el-input__inner"
+                    type = {input_type}
+                    class = "el-input__inner"
                     readonly = {self.props.readonly}
                     ref = {&self.input_ref}
-                    autocomplete="off"
-                    placeholder="请选择日期"
+                    autocomplete = {self.props.autocomplete.clone()}
+                    oninput = {ctx.link().callback(|e|{
+                        YewInputMsg::OnInput(e)
+                    })}
+                    onfocus = {ctx.link().callback(|e|{
+                        YewInputMsg::OnFocus(e)
+                    })}
+                    onblur = {ctx.link().callback(|e|{
+                        YewInputMsg::OnFocus(e)
+                    })}
+                    onchange = {ctx.link().callback(|e|{
+                        YewInputMsg::OnChange(e)
+                    })}
+                    placeholder = {self.props.placeholder.clone()}
+                    aria-label = {self.props.label.clone()}
                 />
                 // 前置内容
                 if has_prefix || !self.props.prefix_icon.is_empty() {
@@ -301,5 +440,143 @@ impl YewInput {
                 }
             </>
         );
+    }
+
+    pub fn calc_textarea_height(
+        &self,
+        target_element: HtmlElement,
+        min_rows: Option<i32>,
+        max_rows: Option<i32>,
+    ) -> Option<(String, String)> {
+        let hidden_textarea_result = gloo::utils::document().create_element("textarea");
+        if hidden_textarea_result.is_ok() {
+            let (context_style, padding_size, border_size, box_sizing) =
+                self.calculate_node_styling(target_element);
+
+            let hidden_textarea = hidden_textarea_result.unwrap();
+            let body = gloo::utils::document().body().unwrap();
+            body.append_child(&hidden_textarea);
+
+            let hidden_style = "
+            height:0 !important;
+            visibility:hidden !important;
+            overflow:hidden !important;
+            position:absolute !important;
+            z-index:-1000 !important;
+            top:0 !important;
+            right:0 !important
+            "
+            .to_string();
+            hidden_textarea.set_attribute("style", &format!("{};{}", context_style, hidden_style));
+
+            // hidden_textarea.set_node_value(&target_element.node_value().unwrap());
+
+            let mut height = hidden_textarea.scroll_height() as f64;
+            if box_sizing == "border-box" {
+                height += border_size;
+            } else if box_sizing == "content-box" {
+                height -= padding_size;
+            }
+
+            hidden_textarea.set_node_value(Some(""));
+            let single_row_height = hidden_textarea.scroll_height() as f64 - padding_size;
+
+            let mut result = ("".to_string(), "".to_string());
+
+            if min_rows.is_some() {
+                let mut min_height = single_row_height * min_rows.unwrap() as f64;
+                if box_sizing == "border-box" {
+                    min_height += padding_size + border_size;
+                }
+                height = js_sys::Math::max(min_height, height);
+                result.0 = format!("{}px", min_height);
+            }
+
+            if max_rows.is_some() {
+                let mut max_height = single_row_height * max_rows.unwrap() as f64;
+                if box_sizing == "border-box" {
+                    max_height += padding_size + border_size;
+                }
+                height = js_sys::Math::min(max_height, height);
+            }
+
+            result.1 = format!("{}px", height);
+
+            if hidden_textarea.parent_node().is_some() {
+                let parent_node = hidden_textarea.parent_node().unwrap();
+                let _ = parent_node.remove_child(&hidden_textarea);
+            }
+            return Some(result);
+        }
+        return None;
+    }
+
+    fn calculate_node_styling(&self, target_element: HtmlElement) -> (String, f64, f64, String) {
+        let mut context_style = String::default();
+        let mut box_sizing = String::default();
+        let mut padding_size = 0.0;
+        let mut border_size = 0.0;
+
+        let window = gloo::utils::window();
+        let style_result = window.get_computed_style(&target_element);
+        if style_result.is_ok() {
+            let style = style_result.unwrap().expect("style is null");
+            let box_sizing_result = style.get_property_value("box-sizing");
+            if box_sizing_result.is_ok() {
+                box_sizing = box_sizing_result.unwrap();
+            }
+
+            let padding_bottom_result = style.get_property_value("padding-bottom");
+            if padding_bottom_result.is_ok() {
+                padding_size += js_sys::Number::parse_float(&padding_bottom_result.unwrap());
+            }
+            let padding_top_result = style.get_property_value("padding-top");
+            if padding_top_result.is_ok() {
+                padding_size += js_sys::Number::parse_float(&padding_top_result.unwrap());
+            }
+
+            let border_bottom_width_result = style.get_property_value("border-bottom-width");
+            if border_bottom_width_result.is_ok() {
+                border_size += js_sys::Number::parse_float(&border_bottom_width_result.unwrap());
+            }
+
+            let border_top_width_result = style.get_property_value("border-top-width");
+            if border_top_width_result.is_ok() {
+                border_size += js_sys::Number::parse_float(&border_top_width_result.unwrap());
+            }
+
+            let hidden_style = vec![
+                "letter-spacing",
+                "line-height",
+                "padding-top",
+                "padding-bottom",
+                "font-family",
+                "font-weight",
+                "font-size",
+                "text-rendering",
+                "text-transform",
+                "width",
+                "text-indent",
+                "padding-left",
+                "padding-right",
+                "border-width",
+                "box-sizing",
+            ];
+            let mut cc = vec![];
+            for name in hidden_style.into_iter() {
+                let value_result = style.get_property_value(name);
+                if value_result.is_ok() {
+                    cc.push(format!(
+                        "{}: {}",
+                        name,
+                        js_sys::Number::parse_float(&value_result.unwrap())
+                    ));
+                } else {
+                    cc.push(format!("{}: 0", name))
+                }
+            }
+            context_style = cc.join(";");
+        }
+        (context_style, padding_size, border_size, box_sizing)
     }
 }
