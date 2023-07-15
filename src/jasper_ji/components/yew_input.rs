@@ -26,7 +26,7 @@ pub struct YewInput {
     focused: bool,
     need_focus: bool,
     // 缓存查找的
-    solt_map: RefCell<HashMap<String, bool>>,
+    slot_map: RefCell<HashMap<String, bool>>,
     props: YewInputProps,
 }
 
@@ -110,7 +110,7 @@ impl Component for YewInput {
         Self {
             need_focus: false,
             hovering: false,
-            solt_map: RefCell::new(HashMap::default()),
+            slot_map: RefCell::new(HashMap::default()),
             textarea_ref: NodeRef::default(),
             input_ref: NodeRef::default(),
             password_visible: false,
@@ -313,8 +313,8 @@ impl YewInput {
             classes.push("is-exceed".to_string());
         }
 
-        let has_prepend = self.has_solt("prepend".to_string());
-        let has_append = self.has_solt("append".to_string());
+        let has_prepend = self.has_slot("prepend".to_string());
+        let has_append = self.has_slot("append".to_string());
         if has_prepend || has_append {
             classes.push("el-input-group".to_string());
             if has_append {
@@ -325,12 +325,12 @@ impl YewInput {
             }
         }
 
-        let has_prefix = self.has_solt("prefix".to_string());
+        let has_prefix = self.has_slot("prefix".to_string());
         if has_prefix || !self.props.prefix_icon.is_empty() {
             classes.push("el-input--prefix".to_string());
         }
 
-        let has_suffix = self.has_solt("suffix".to_string());
+        let has_suffix = self.has_slot("suffix".to_string());
         if has_suffix
             || !self.props.suffix_icon.is_empty()
             || self.props.clearable
@@ -361,7 +361,7 @@ impl YewInput {
     pub fn get_suffix_visible(&self) -> bool {
         // (this.validateState && this.needStatusIcon);
 
-        let has_suffix = self.has_solt("suffix".to_string());
+        let has_suffix = self.has_slot("suffix".to_string());
         if has_suffix
             || !self.props.suffix_icon.is_empty()
             || self.show_clear()
@@ -396,16 +396,16 @@ impl YewInput {
         flag
     }
 
-    pub fn get_solt(&self, solt_name: String) -> Option<VNode> {
+    pub fn get_slot(&self, slot_name: String) -> Option<VNode> {
         for i in self.props.children.clone().into_iter() {
             match i {
                 VNode::VTag(ref vtag) => {
                     match vtag.attributes {
                         yew::virtual_dom::Attributes::Static(vev) => {
                             for g in vev {
-                                if g.0 == "solt" {
+                                if g.0 == "slot" {
                                     // log!(format!("{:?}", g.1));
-                                    if g.1 == solt_name {
+                                    if g.1 == slot_name {
                                         return Some(i);
                                     }
                                 }
@@ -420,17 +420,17 @@ impl YewInput {
         None
     }
 
-    pub fn has_solt(&self, name: String) -> bool {
+    pub fn has_slot(&self, name: String) -> bool {
         // TODO 此处原本打算缓存一下，但发现这个最终会在view的方法里调用，而那个是不可修改的self。
         // 这个也让我知道了，Rust的一些使用上的问题，安全的代价可能比想象的高。
         // 不过此处问题已经通过RefCell的方式解决
         let clone_name = name.clone();
-        let mut ref_cell = self.solt_map.borrow_mut();
+        let mut ref_cell = self.slot_map.borrow_mut();
         let c = ref_cell.get(&clone_name.clone());
         if c.is_some() {
             return *c.unwrap();
         }
-        match self.get_solt(name) {
+        match self.get_slot(name) {
             Some(_) => {
                 ref_cell.insert(clone_name.clone(), true);
                 return true;
@@ -453,16 +453,16 @@ impl YewInput {
         } else {
             input_type = self.props.input_type.clone()
         };
-        let has_prepend = self.has_solt("prepend".to_string());
-        let has_append = self.has_solt("append".to_string());
-        let has_prefix = self.has_solt("prefix".to_string());
-        let has_suffix = self.has_solt("suffix".to_string());
+        let has_prepend = self.has_slot("prepend".to_string());
+        let has_append = self.has_slot("append".to_string());
+        let has_prefix = self.has_slot("prefix".to_string());
+        let has_suffix = self.has_slot("suffix".to_string());
         return html!(
             <>
                 // 前置元素
                 if has_prepend {
                     <div class="el-input-group__prepend">
-                        {self.get_solt("prepend".to_string()).unwrap().clone()}
+                        {self.get_slot("prepend".to_string()).unwrap().clone()}
                     </div>
                 }
                 <input
@@ -492,7 +492,7 @@ impl YewInput {
                 if has_prefix || !self.props.prefix_icon.is_empty() {
                     <span class="el-input__prefix">
                         if has_prefix {
-                            {self.get_solt("prefix".to_string()).unwrap().clone()}
+                            {self.get_slot("prefix".to_string()).unwrap().clone()}
                         }
                         if !self.props.prefix_icon.is_empty() {
                             <i class={format!("el-input__icon {}",self.props.prefix_icon.clone())}></i>
@@ -534,7 +534,7 @@ impl YewInput {
                                 }
                             } else {
                                 if has_suffix {
-                                    {self.get_solt("suffix".to_string()).unwrap().clone()}
+                                    {self.get_slot("suffix".to_string()).unwrap().clone()}
                                 }
                                 if !self.props.suffix_icon.is_empty() {
                                     <i class={format!("el-input__icon {}", self.props.suffix_icon)}/>
@@ -545,7 +545,7 @@ impl YewInput {
                 }
                 if has_append {
                     <div class="el-input-group__append">
-                        {self.get_solt("append".to_string()).unwrap().clone()}
+                        {self.get_slot("append".to_string()).unwrap().clone()}
                     </div>
                 }
             </>
