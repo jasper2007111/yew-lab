@@ -43,7 +43,7 @@ impl Component for ComponentsTest {
         html! {
             <div>
                 <h1>{ "组件测试" }</h1>
-                <YewButton style="primary" title="按钮测试" on_clicked={on_clicked.clone()} />
+                <YewButton button_type="primary" title="按钮测试" on_clicked={on_clicked.clone()} />
                 <br/>
                 <br/>
                 <YewRate value={0.0} on_change={ctx.link().callback(|v| {

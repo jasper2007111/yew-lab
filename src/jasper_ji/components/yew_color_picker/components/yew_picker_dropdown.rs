@@ -162,7 +162,7 @@ impl Component for YewPickerDropdown {
                         // TODO 暂未实现input组件，使用文本代替
                         {custom_input}
                     </span>
-                    <YewButton style="text" size={"mini"} title={"清空"} on_clicked={ctx.link().callback(|_|{
+                    <YewButton button_type="text" size={"mini"} title={"清空"} on_clicked={ctx.link().callback(|_|{
                         Msg::OnClearValue
                     })}/>
                     <YewButton size={"mini"} plain={true} title={"确定"} on_clicked={ctx.link().callback(|_|{

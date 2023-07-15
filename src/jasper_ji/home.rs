@@ -43,6 +43,10 @@ impl Component for Home {
                 Menu {
                     name: String::from("组件测试"),
                     route: Route::ComponentsTest
+                },
+                Menu {
+                    name: String::from("登录页面"),
+                    route: Route::Login
                 }
             ],
         }
