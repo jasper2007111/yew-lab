@@ -57,7 +57,7 @@ impl Component for ComponentsTest {
                 <br/>
                 <br/>
 
-                <YewInput max_length={Some(30)} rows={Some(2)} input_type="textarea" placeholder="请输入"><i solt="prepend" >{"http://"}</i></YewInput>
+                <YewInput max_length={Some(30)} show_word_limit={true} input_type="textarea" placeholder="请输入"><i solt="prepend" >{"http://"}</i></YewInput>
             </div>
         }
     }

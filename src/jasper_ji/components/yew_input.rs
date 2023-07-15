@@ -99,7 +99,7 @@ pub struct YewInputProps {
     pub clearable: bool,
 
     #[prop_or(None)]
-    pub rows: Option<u32>
+    pub rows: Option<u32>,
 }
 
 impl Component for YewInput {
@@ -249,7 +249,6 @@ impl Component for YewInput {
                 if let Some(value) = self.props.rows {
                     textarea.set_rows(value);
                 }
-
             } else if self.props.input_type == "text" {
                 let input = self.input_ref.cast::<HtmlInputElement>().unwrap();
                 if let Some(maxlength) = self.props.max_length {
@@ -347,9 +346,16 @@ impl YewInput {
         return self.props.disabled;
     }
 
+    pub fn get_upper_limit(&self) -> i32 {
+        if let Some(len) = self.props.max_length {
+            return len;
+        }
+        return 0;
+    }
+
     pub fn is_input_exceed(&self) -> bool {
-        // TODO 暂未实现
-        false
+        return self.is_word_limit_visible()
+            && (self.get_text_length() as i32 > self.get_upper_limit());
     }
 
     pub fn get_suffix_visible(&self) -> bool {
