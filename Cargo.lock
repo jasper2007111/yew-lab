@@ -1569,6 +1569,7 @@ dependencies = [
  "hsv",
  "image",
  "js-sys",
+ "once_cell",
  "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",

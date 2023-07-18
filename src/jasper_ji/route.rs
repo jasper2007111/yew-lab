@@ -16,5 +16,7 @@ pub enum Route {
     #[at("/counterTest")]
     CounterTest,
     #[at("/componentsTest")]
-    ComponentsTest
+    ComponentsTest,
+    #[at("/calljs")]
+    CallJsTest
 }

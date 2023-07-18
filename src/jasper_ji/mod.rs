@@ -7,3 +7,5 @@ pub mod components_test;
 pub mod components;
 pub mod utils;
 pub mod login;
+pub mod call_js_test;
+pub mod bindings;

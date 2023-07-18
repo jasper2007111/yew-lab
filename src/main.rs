@@ -10,6 +10,7 @@ use jasper_ji::counter_test::CounterTest;
 use jasper_ji::components_test::ComponentsTest;
 use jasper_ji::route::Route;
 use jasper_ji::login::Login;
+use jasper_ji::call_js_test::CallJsTest;
 
 
 fn switch(routes: Route) -> Html {
@@ -20,7 +21,8 @@ fn switch(routes: Route) -> Html {
         Route::FetchTest => html! { <FetchTest/> },
         Route::CounterTest =>html !{ <CounterTest/>},
         Route::ComponentsTest => html!{<ComponentsTest/>},
-        Route::Login => html!(<Login/>)
+        Route::Login => html!(<Login/>),
+        Route::CallJsTest=> html!(<CallJsTest/>)
     }
 }
 
