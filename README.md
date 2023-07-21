@@ -11,9 +11,10 @@ Rust前端框架[Yew](https://github.com/yewstack/yew/tree/master)实验室，�
 组件测试，这个主要是对Element UI进行仿写，试图复刻一个Yew版的[Element UI](https://github.com/ElemeFE/element/tree/dev)。目前完成的组件如下：
 
 1. Button 按钮，基本功能已经完成
-2. Rate 评分，已经完成
+2. Rate 评分，已经完成。
 3. ColorPicker 颜色选择器，核心功能已经完成，暂不支持自定义输入颜色，另外也不支持滑动，只支持点击选择功能。
-4. Input 输入框，进行中。
+4. Input 输入框，基本功能已经完成。
+5. Select 选择器，进行中
 
 
 运行
