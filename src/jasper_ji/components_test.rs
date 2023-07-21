@@ -1,7 +1,10 @@
 use super::components::yew_button::YewButton;
-use super::components::yew_rate::YewRate;
 use super::components::yew_color_picker::yew_color_picker::YewColorPicker;
 use super::components::yew_input::YewInput;
+use super::components::yew_select::yew_select::YewSelect;
+use super::components::yew_rate::YewRate;
+use super::components::yew_select::yew_option::YewOption;
+use std::collections::HashMap;
 
 use gloo_console::log;
 use yew::prelude::*;
@@ -9,7 +12,7 @@ use yew::prelude::*;
 pub enum Msg {
     BtnClick,
     OnRateValueChanged(f64),
-    OnPickerValueChanged(String)
+    OnPickerValueChanged(String),
 }
 
 pub struct ComponentsTest {}
@@ -27,12 +30,12 @@ impl Component for ComponentsTest {
             Msg::BtnClick => {
                 log!("按钮点击");
                 false
-            },
-            Msg::OnRateValueChanged(v) =>{
+            }
+            Msg::OnRateValueChanged(v) => {
                 log!("v: ", v);
                 false
-            },
-            Msg::OnPickerValueChanged(v) =>{
+            }
+            Msg::OnPickerValueChanged(v) => {
                 log!("OnPickerValueChanged: ", v);
                 false
             }
@@ -40,6 +43,10 @@ impl Component for ComponentsTest {
     }
     fn view(&self, ctx: &Context<Self>) -> Html {
         let on_clicked = ctx.link().callback(move |_e: MouseEvent| Msg::BtnClick);
+        let mut data = vec![];
+        for i in 0..5 {
+            data.push(format!("{}_fffff", i));
+        }
         html! {
             <div>
                 <h1>{ "组件测试" }</h1>
@@ -58,6 +65,10 @@ impl Component for ComponentsTest {
                 <br/>
 
                 <YewInput max_length={Some(30)} show_word_limit={true} input_type="textarea" placeholder="请输入"><i solt="prepend" >{"http://"}</i></YewInput>
+                <br/>
+                <br/>
+                <YewSelect {data}>
+                </YewSelect>
             </div>
         }
     }

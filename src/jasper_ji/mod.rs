@@ -9,3 +9,4 @@ pub mod utils;
 pub mod login;
 pub mod call_js_test;
 pub mod bindings;
+pub mod contexts;

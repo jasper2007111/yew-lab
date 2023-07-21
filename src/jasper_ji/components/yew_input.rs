@@ -119,6 +119,11 @@ impl Component for YewInput {
         }
     }
 
+    fn changed(&mut self, ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
+        self.props = ctx.props().clone();
+        return true;
+    }
+
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             YewInputMsg::None => false,
@@ -196,6 +201,7 @@ impl Component for YewInput {
                 if self.props.input_type == "textarea" {
                     <textarea
                         tabindex = {self.props.tabindex.clone()}
+                        value = {self.props.value.clone()}
                         class = "el-textarea__inner"
                         oninput = {ctx.link().callback(|e| {
                             YewInputMsg::OnInput(e)
@@ -468,6 +474,7 @@ impl YewInput {
                 <input
                     tabindex={self.props.tabindex.clone()}
                     disabled={self.is_input_disabled()}
+                    value = {self.props.value.clone()}
                     type = {input_type}
                     class = "el-input__inner"
                     readonly = {self.props.readonly}

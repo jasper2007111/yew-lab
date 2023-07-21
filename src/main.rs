@@ -11,6 +11,7 @@ use jasper_ji::components_test::ComponentsTest;
 use jasper_ji::route::Route;
 use jasper_ji::login::Login;
 use jasper_ji::call_js_test::CallJsTest;
+use jasper_ji::contexts::contexts_test::ContextsTest;
 
 
 fn switch(routes: Route) -> Html {
@@ -22,7 +23,8 @@ fn switch(routes: Route) -> Html {
         Route::CounterTest =>html !{ <CounterTest/>},
         Route::ComponentsTest => html!{<ComponentsTest/>},
         Route::Login => html!(<Login/>),
-        Route::CallJsTest=> html!(<CallJsTest/>)
+        Route::CallJsTest=> html!(<CallJsTest/>),
+        Route::ContextsTest=> html!(<ContextsTest/>)
     }
 }
 

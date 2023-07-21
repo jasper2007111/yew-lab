@@ -51,7 +51,11 @@ impl Component for Home {
                 Menu {
                     name: String::from("调用JS页面"),
                     route: Route::CallJsTest
-                }
+                },
+                Menu {
+                    name: String::from("ContextsTest页面"),
+                    route: Route::ContextsTest
+                },
             ],
         }
     }
