@@ -4,7 +4,9 @@ use super::msg_ctx::MessageContext;
 use super::yew_select_menu::YewSelectMenu;
 use super::yew_option::YewOption;
 use crate::jasper_ji::components::yew_input::YewInput;
+use crate::jasper_ji::components::yew_scrollbar::yew_scrollbar::YewScrollbar;
 use std::collections::HashMap;
+use web_sys::HtmlElement;
 
 
 use gloo_console::log;
@@ -12,9 +14,10 @@ use gloo_console::log;
 pub struct YewSelectInner {
     message: MessageContext,
     _context_listener: ContextHandle<MessageContext>,
-    input_ref: NodeRef,
+    input_root_ref: NodeRef,
     visible: bool,
     props: YewSelectInnerProps,
+    input_width: Option<f64>
 }
 
 pub enum YewSelectInnerMsg {
@@ -53,8 +56,9 @@ impl Component for YewSelectInner {
             .expect("No Message Context Provided");
 
         Self {
+            input_width: None,
             visible: false,
-            input_ref: NodeRef::default(),
+            input_root_ref: NodeRef::default(),
             props: ctx.props().clone(),
             message,
             _context_listener: context_listener,
@@ -97,7 +101,7 @@ impl Component for YewSelectInner {
             <div
                 class={classes!(self.get_root_classes())}
             >
-            <YewInput value={String::from(self.message.inner.clone())} on_focus={ctx.link().callback(|_|{
+            <YewInput root_ref={&self.input_root_ref} value={String::from(self.message.inner.clone())} on_focus={ctx.link().callback(|_|{
                 YewSelectInnerMsg::OnFocus
             })}>
               <div slot="suffix">
@@ -105,11 +109,23 @@ impl Component for YewSelectInner {
               </div>
             </YewInput>
             if self.visible {
-                <YewSelectMenu>
-                {menus}
+                <YewSelectMenu min_width={self.input_width}>
+                    <YewScrollbar>
+                        {menus}
+                    </YewScrollbar>
                 </YewSelectMenu>
             }
             </div>
+        }
+    }
+
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        if first_render {
+            if let Some(div) = self.input_root_ref.cast::<HtmlElement>() {
+                let rect = div.get_bounding_client_rect();
+                log!(format!("rect.width(): {}", rect.width().clone()));
+                self.input_width = Some(rect.width());
+            }
         }
     }
 }

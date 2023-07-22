@@ -18,7 +18,10 @@ pub struct YewSelectProps {
     #[prop_or_default]
     pub children: Children,
 
-    pub data:Vec<String>
+    pub data:Vec<String>,
+
+    #[prop_or_default]
+    pub on_change: Callback<String>
 }
 impl Component for YewSelect {
     type Message = YewSelectMsg;

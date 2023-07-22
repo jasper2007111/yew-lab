@@ -18,6 +18,8 @@ pub struct YewSelectMenuProps {
     #[prop_or_default]
     pub children: Children,
 
+    #[prop_or_default]
+    pub min_width:Option<f64>
 }
 
 impl Component for YewSelectMenu {
@@ -32,9 +34,15 @@ impl Component for YewSelectMenu {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
-            <div class="el-select-dropdown el-popper">
-                {self.props.children.clone()}
-            </div>
+            if let Some(width) = ctx.props().min_width {
+                <div class="el-select-dropdown el-popper" style={format!("min-width: {}px", width)}>
+                    {self.props.children.clone()}
+                </div>
+            } else {
+                <div class="el-select-dropdown el-popper">
+                    {self.props.children.clone()}
+                </div>
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ impl Component for ComponentsTest {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let on_clicked = ctx.link().callback(move |_e: MouseEvent| Msg::BtnClick);
         let mut data = vec![];
-        for i in 0..5 {
+        for i in 0..15 {
             data.push(format!("{}_fffff", i));
         }
         html! {

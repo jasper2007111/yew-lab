@@ -100,6 +100,9 @@ pub struct YewInputProps {
 
     #[prop_or(None)]
     pub rows: Option<u32>,
+
+    #[prop_or_default]
+    pub root_ref: NodeRef,
 }
 
 impl Component for YewInput {
@@ -190,6 +193,7 @@ impl Component for YewInput {
         let classes = self.get_root_div_classes();
         html! {
             <div
+                ref= {&self.props.root_ref}
                 class={classes!(classes.clone())}
                 onmouseenter={ctx.link().callback(|_|{
                     YewInputMsg::OnMouseEnter()
