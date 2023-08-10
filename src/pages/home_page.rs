@@ -3,8 +3,7 @@ use yew::prelude::*;
 
 use yew_router::prelude::*;
 
-use super::route::Route;
-use super::components::yew_button::YewButton;
+use crate::route::Route;
 
 pub enum Msg {
     None,
@@ -17,11 +16,11 @@ pub struct Menu {
     pub route: Route,
 }
 
-pub struct Home {
+pub struct HomePage {
     menus: Vec<Menu>,
 }
 
-impl Component for Home {
+impl Component for HomePage {
     type Message = Msg;
     type Properties = ();
 
@@ -30,31 +29,23 @@ impl Component for Home {
             menus: vec![
                 Menu {
                     name: String::from("图片测试"),
-                    route: Route::ImgTest,
+                    route: Route::ImgPage,
                 },
                 Menu {
                     name: String::from("Fetch测试"),
-                    route: Route::FetchTest,
+                    route: Route::FetchPage,
                 },
                 Menu {
                     name: String::from("Counter测试"),
-                    route: Route::CounterTest,
+                    route: Route::CounterPage,
                 },
                 Menu {
-                    name: String::from("组件测试"),
-                    route: Route::ComponentsTest
+                    name: String::from("调用JS测试"),
+                    route: Route::CallJsPage
                 },
                 Menu {
-                    name: String::from("登录页面"),
-                    route: Route::Login
-                },
-                Menu {
-                    name: String::from("调用JS页面"),
-                    route: Route::CallJsTest
-                },
-                Menu {
-                    name: String::from("ContextsTest页面"),
-                    route: Route::ContextsTest
+                    name: String::from("Contexts测试"),
+                    route: Route::ContextsPage
                 },
             ],
         }
@@ -87,10 +78,11 @@ impl Component for Home {
             })
         }
         html! {
-            <div class="center-container">
-                <h1>{ "主页" }</h1>
-                {list}
-            </div>
+            // <div class="center-container">
+            //     <div>{"主页"}</div>
+            //     <div>{list}</div>
+            // </div>
+            <>{list}</>
         }
     }
 }

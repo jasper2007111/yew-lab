@@ -42,11 +42,11 @@ async fn run(repo: String) -> Result<JsValue, JsValue> {
     Ok(json)
 }
 
-pub struct FetchTest {
+pub struct FetchPage {
     user_msg: Msg
 }
 
-impl Component for FetchTest {
+impl Component for FetchPage {
     type Message = Msg;
     type Properties = ();
 

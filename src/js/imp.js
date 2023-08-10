@@ -26,7 +26,7 @@ let editor;
 //     mode: 'default', // or 'simple'
 // })
 
-export function hello() {
+export function initEditor() {
     editor = createEditor({
         selector: '#editor-container',
         html: '<p><br></p>',
@@ -44,5 +44,10 @@ export function hello() {
 
 export function get_text() {
     return editor.getText();
+}
+
+export function set_text(text) {
+    const html = text.split(/\n/).map(line => `<p>${line}</p>`).join('\n')
+    editor.setHtml(html)
 }
 

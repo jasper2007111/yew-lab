@@ -6,11 +6,11 @@ pub enum Msg {
     Sub
 }
 
-pub struct CounterTest {
+pub struct CounterPage {
     counter: i32
 }
 
-impl Component for CounterTest {
+impl Component for CounterPage {
     type Message = Msg;
     type Properties = ();
 

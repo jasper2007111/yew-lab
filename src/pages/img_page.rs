@@ -28,12 +28,12 @@ pub enum Msg {
     Files(Vec<File>),
 }
 
-pub struct ImgTest {
+pub struct ImgPage {
     readers: HashMap<String, FileReader>,
     files: Vec<FileDetails>,
 }
 
-impl Component for ImgTest {
+impl Component for ImgPage {
     type Message = Msg;
     type Properties = ();
 
@@ -157,7 +157,7 @@ impl Component for ImgTest {
     }
 }
 
-impl ImgTest {
+impl ImgPage {
     fn view_file(file: &FileDetails) -> Html {
         // let uint8arr: js_sys::Uint8Array =
         //     js_sys::Uint8Array::new(&unsafe { js_sys::Uint8Array::view(&file.data) }.into());

@@ -1,39 +1,45 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-mod jasper_ji;
+mod pages;
+mod route;
+mod components;
+mod bindings;
 
-use jasper_ji::home::Home;
-use jasper_ji::img_test::ImgTest;
-use jasper_ji::fetch_test::FetchTest;
-use jasper_ji::counter_test::CounterTest;
-use jasper_ji::components_test::ComponentsTest;
-use jasper_ji::route::Route;
-use jasper_ji::login::Login;
-use jasper_ji::call_js_test::CallJsTest;
-use jasper_ji::contexts::contexts_test::ContextsTest;
+use pages::call_js_page::CallJsPage;
+use pages::contexts::contexts_page::ContextsPage;
+use pages::counter_page::CounterPage;
+use pages::fetch_page::FetchPage;
+use pages::home_page::HomePage;
+use pages::img_page::ImgPage;
+use crate::route::Route;
 
+use gloo_console::log;
+
+use std::rc::Rc;
+use yewdux::prelude::*;
 
 fn switch(routes: Route) -> Html {
+    log!("路由！！！");
     match routes {
-        Route::Home => html! { <Home/> },
+        Route::HomePage => html! { <HomePage/> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
-        Route::ImgTest => html! { <ImgTest/> },
-        Route::FetchTest => html! { <FetchTest/> },
-        Route::CounterTest =>html !{ <CounterTest/>},
-        Route::ComponentsTest => html!{<ComponentsTest/>},
-        Route::Login => html!(<Login/>),
-        Route::CallJsTest=> html!(<CallJsTest/>),
-        Route::ContextsTest=> html!(<ContextsTest/>)
+        Route::ImgPage => html! { <ImgPage/> },
+        Route::FetchPage => html! { <FetchPage/> },
+        Route::CounterPage => html! { <CounterPage/>},
+        Route::CallJsPage => html!(<CallJsPage/>),
+        Route::ContextsPage => html!(<ContextsPage/>)
     }
 }
 
 #[function_component(App)]
 fn app() -> Html {
     html! {
+    <>
         <BrowserRouter>
             <Switch<Route> render={switch} />
         </BrowserRouter>
+    </>
     }
 }
 

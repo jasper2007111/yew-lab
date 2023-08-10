@@ -6,7 +6,7 @@ use super::contexts_components::ContextsComponents;
 use yew::prelude::*;
 
 #[function_component]
-pub fn ContextsTest() -> Html {
+pub fn ContextsPage() -> Html {
     html! {
         <ContextsComponents>
             <Producer />

@@ -14,13 +14,16 @@ extern "C" {
     pub fn wasm_bindgen_snippets_path(this: &Window) -> String;
 }
 
-#[wasm_bindgen(module = "/src/jasper_ji/js/imp.js")]
+#[wasm_bindgen(module = "/src/js/imp.js")]
 extern "C" {
-    #[wasm_bindgen]
-    pub fn hello() -> String;
+    #[wasm_bindgen(js_name="initEditor")]
+    pub fn init_editor() -> String;
 
     #[wasm_bindgen]
     pub fn get_text() -> String;
+
+    #[wasm_bindgen]
+    pub fn set_text(text: String);
 }
 
 #[wasm_bindgen]
@@ -31,7 +34,7 @@ extern "C" {
     pub fn bye(this: &UnimpModule) -> String;
 }
 
-#[wasm_bindgen(module = "/src/jasper_ji/js/unimp.js")]
+#[wasm_bindgen(module = "/src/js/unimp.js")]
 extern "C" {
     /// This exists so that wasm bindgen copies js/unimp.js to
     /// dist/snippets/<bin-name>-<hash>/js/uninp.js
