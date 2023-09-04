@@ -6,7 +6,7 @@ use super::msg_ctx::MessageContext;
 pub fn Producer() -> Html {
     let msg_ctx = use_context::<MessageContext>().unwrap();
 
-    let onclick = Callback::from(move |_| msg_ctx.dispatch("Message Received.".to_string()));
+    let onclick = Callback::from(move |_| msg_ctx.dispatch("Function Producer Message Received.".to_string()));
 
     html! {
         <button {onclick}>
